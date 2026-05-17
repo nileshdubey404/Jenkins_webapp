@@ -2,7 +2,7 @@ pipeline{
     agent {label 'Frontend'}
         environment {
             APP_SERVER = "172.31.45.70"
-            DEPLOY_DIR ="/VAR/WWW/HTML"
+            DEPLOY_DIR ="/var/www/html"
         }
         stages{
             stage('Pre Build actions'){
