@@ -1,34 +1,44 @@
-pipeline{
-    agent {label 'Frontend'}
-        environment {
-            APP_SERVER = "172.31.45.70"
-            DEPLOY_DIR ="/var/www/html"
+pipeline {
+    agent { label 'Frontend' }
+
+    environment {
+        APP_SERVER = "172.31.45.70"
+        DEPLOY_DIR = "/var/www/html"
+    }
+
+    stages {
+
+        stage('Pre Build Actions') {
+            steps {
+                sh 'npm install'
+            }
         }
-        stages{
-            stage('Pre Build actions'){
-                steps{
-                    sh 'npm install'
-                }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
             }
-            stage('Build'){
-                steps{
-                   sh 'npm run build'
-                }
-            }
-            stage('Post Build Actions'){
-                steps{
-                    sh """
-                    echo 'Cleanning old file on app server'
+        }
+
+        stage('Post Build Actions') {
+            steps {
+                sh """
+                    echo 'Cleaning old files on app server'
                     ssh jenkins@${APP_SERVER} 'sudo rm -rf ${DEPLOY_DIR}/*'
-                    echo 'copying frontend build'
-                    scp -r dist/* jenkins@${APP_SERVER}:${DEPLOY_DIR}/
-                    echo 'Restoring nginx'
-                    ssh jenkins@${APP_SERVER} 'sudo systemctl restart nginx' 
-                    """
-                    
-                }
+
+                    echo 'Copying frontend build'
+                    scp -r dist/* jenkins@${APP_SERVER}:/tmp/
+
+                    echo 'Moving files to nginx directory'
+                    ssh jenkins@${APP_SERVER} '
+                        sudo cp -r /tmp/* ${DEPLOY_DIR}/ &&
+                        sudo rm -rf /tmp/*
+                    '
+
+                    echo 'Restarting nginx'
+                    ssh jenkins@${APP_SERVER} 'sudo systemctl restart nginx'
+                """
             }
-            
         }
-    
+    }
 }
