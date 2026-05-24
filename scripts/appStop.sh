@@ -1,1 +1,1 @@
-echo "project is toped"
+echo "Stoping Nginx Server..."
