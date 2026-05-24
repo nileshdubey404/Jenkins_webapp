@@ -1,0 +1,1 @@
+echo "Stoping Nginx Server..."
