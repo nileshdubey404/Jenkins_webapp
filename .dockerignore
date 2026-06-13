@@ -1,0 +1,18 @@
+# Ignore source control metadata
+.git
+.gitignore
+
+# Ignore local package managers
+node_modules/
+venv/
+.env
+
+# Ignore compilation assets
+dist/
+build/
+*.exe
+
+# Ignore system logs
+*.log
+.DS_Store
+npm-debug.log
