@@ -1,21 +1,17 @@
 pipeline {
     agent any
-
     environment {
         IMAGE_NAME = "nileshdubey404/frontend"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
         APP_SERVER = "65.0.110.212"
     }
-
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/nileshdubey404/Jenkins_webapp.git'
+                url: 'https://github.com/nileshdubey404/Jenkins_webapp.git'
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -23,8 +19,7 @@ pipeline {
                 '''
             }
         }
-
-        stage('Docker Login & Push') {
+        stage('Docker Login') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -34,43 +29,44 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
-                    docker push $IMAGE_NAME:$IMAGE_TAG
-
-                    docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-
-                    docker push $IMAGE_NAME:latest
+                    echo $DOCKER_PASS | docker login \
+                    -u $DOCKER_USER \
+                    --password-stdin
                     '''
                 }
             }
         }
-
-        stage('Deploy to App Server') {
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push $IMAGE_NAME:$IMAGE_TAG
+                docker tag \
+                $IMAGE_NAME:$IMAGE_TAG \
+                $IMAGE_NAME:latest
+                docker push $IMAGE_NAME:latest
+                '''
+            }
+        }
+        stage('Deploy To App Server') {
             steps {
                 sh """
                 ssh ubuntu@$APP_SERVER '
-                    docker pull $IMAGE_NAME:latest
-
-                    docker stop frontend || true
-
-                    docker rm frontend || true
-
-                    docker run -d \
-                        --name frontend \
-                        -p 80:80 \
-                        $IMAGE_NAME:latest
+                docker pull $IMAGE_NAME:latest
+                docker stop frontend || true
+                docker rm frontend || true
+                docker run -d \
+                --name frontend \
+                -p 80:80 \
+                $IMAGE_NAME:latest
                 '
                 """
             }
         }
     }
-
     post {
         success {
-            echo "Deployment Success"
+            echo "Deployment Successful"
         }
-
         failure {
             echo "Deployment Failed"
         }
