@@ -76,13 +76,16 @@
 pipeline{
     agent any
     stages{
-        stage('deployment'){
+        stage('Deployment'){
             steps{
-                ssh ubuntu@ip '''
-                copy docker-compose.yaml /home/ubuntu/docker-compose.yaml
-                docker-compose -f /home/ubuntu/docker-compose.yaml down
-                docker-compose -f /home/ubuntu/docker-compose.yaml up -d
+                sh """
+                scp docker-compose.yaml ubuntu@65.0.122.91:/home/ubuntu/
+                ssh ubuntu@65.0.122.91 '''
+                cd /home/ubuntu
+                docker-compose down
+                docker-compose up -d
                 '''
+                """
             }
         }
     }
