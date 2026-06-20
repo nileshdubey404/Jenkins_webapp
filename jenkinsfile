@@ -79,8 +79,8 @@ pipeline{
         stage('Deployment'){
             steps{
                 sh """
-                scp docker-compose.yaml ubuntu@65.0.122.91:/home/ubuntu/
-                ssh ubuntu@65.0.122.91 '''
+                scp docker-compose.yaml ubuntu@43.204.103.130:/home/ubuntu/
+                ssh ubuntu@43.204.103.130 '''
                 cd /home/ubuntu
                 docker-compose down
                 docker-compose up -d
