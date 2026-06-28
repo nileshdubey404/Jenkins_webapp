@@ -123,8 +123,8 @@ pipeline{
         stage('Login to AWS ECR'){
             steps {
                 withCredentials([
-                    string(withCredentials: 'ACCESS_KEY_ID', variable: 'ACCESS_KEY_ID'),
-                    string(withCredentials: 'SECRET_ACCESS_KEY', variable: 'SECRET_ACCESS_KEY')
+                    string(credentialsId: 'ACCESS_KEY_ID', variable: 'ACCESS_KEY_ID'),
+                    string(credentialsId: 'SECRET_ACCESS_KEY', variable: 'SECRET_ACCESS_KEY')
                 ]) {
                     sh """
                         export AWS_DEFAULT_REGION=${AWS_REGION}
