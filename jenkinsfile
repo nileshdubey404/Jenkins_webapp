@@ -101,13 +101,13 @@ pipeline{
         ACCOUNT_ID = '582983022960'
         REPOSITORY = 'frontend'
         IMAGE_TAG = '${BUILD_NUMBER}'
-        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY}:${IMAGE_TAG}"
+        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY}"
         ACCESS_KEY_ID = credentials('ACCESS_KEY_ID')
         SECRET_ACCESS_KEY = credentials('SECRET_ACCESS_KEY')
         CLUSTER_NAME = 'default'
         SERVICE_NAME = 'frontend-6f50'
     }
-    stages{
+     stages{
         stage('Checkout'){
             steps{
                 checkout scm
@@ -116,15 +116,15 @@ pipeline{
         stage('Build Docker Image'){
             steps{
                 sh """
-                docker build  -f Docker/dockerfile -t ${REPOSITORY}:${IMAGE_TAG} .
+                docker build  -f docker/dockerfile -t ${REPOSITORY}:${IMAGE_TAG} .
                 """
             }
         }
         stage('Login to AWS ECR'){
             steps {
                 withCredentials([
-                    string(credentialsId: 'ACCESS_KEY_ID', variable: 'ACCESS_KEY_ID'),
-                    string(credentialsId: 'SECRET_ACCESS_KEY', variable: 'SECRET_ACCESS_KEY')
+                    string(credentialsId: 'ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     sh """
                         export AWS_DEFAULT_REGION=${AWS_REGION}
@@ -152,7 +152,9 @@ pipeline{
             steps{
                 sh """
                 docker tag ${REPOSITORY}:${IMAGE_TAG} ${ECR_URI}
+                docker tag ${REPOSITORY}:${IMAGE_TAG} ${ECR_URI}:latest
                 docker push ${ECR_URI}
+                docker push ${ECR_URI}:latest
                 """
             }
         }
