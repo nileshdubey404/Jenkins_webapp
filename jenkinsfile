@@ -82,8 +82,8 @@ pipeline{
                 scp docker-compose.yaml ubuntu@3.108.64.131:/home/ubuntu/
                 ssh ubuntu@3.108.64.131 '''
                 cd /home/ubuntu
-                docker-compose down
-                docker-compose up -d
+                docker compose down
+                docker compose up -d
                 '''
                 """
             }
